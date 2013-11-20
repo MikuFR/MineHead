@@ -1,0 +1,36 @@
+main: me.mikufr.minehead.Main
+name: MineHead
+version: 0.1
+author: MikuFR
+description: A cool plugin to spawn custom heads!
+website: http://dev.bukkit.org/bukkit-plugins/minehead/
+commands:
+   head:
+      description: Spawn a custom head
+      usage: /<command> <headname>
+   givehead:
+      description: Give a custom head
+      usage: /<command> <headname> <playername>
+   minehead:
+      description: Display informations
+      usage: /<command> [reload]
+permissions:
+   minehead.*:
+      description: Give all permissions
+      children:
+         minehead.head: true
+         minehead.givehead: true
+         minehead.info: true
+         minehead.reload: true
+   minehead.head:
+      description: To use the command head
+      default: op
+   minehead.givehead:
+      description: To use the command givehead
+      default: op
+   minehead.info:
+      description: To use the command minehead
+      default: op
+   minehead.reload:
+      description: To use the command minehead reload
+      default: op
