@@ -1,5 +1,6 @@
 package me.mikufr.minehead;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -32,23 +33,34 @@ public class Main extends JavaPlugin
 	static String usage = errorPrefix + "Usage: ";
 	static String tooManyArgs = errorPrefix + "Too many args!";
 	static String notEnoughArgs = errorPrefix + "Not enough args!";
+	static String unknownArgs = errorPrefix + "Command not found!";
 	static String playerOnly = errorPrefix + "This command is only for players!";
 	static String noPermission = errorPrefix + "You don't have permission!";
 	
 	public void log(String msg) 
 	{
-		Logger.getLogger("Minecraft").info("[" + getDescription().getName() + "] " + msg);
+		Logger.getLogger("Minecraft").info("[MineHead] " + msg);
 	}
 	
 	public void onEnable() 
 	{
 		saveDefaultConfig();
-		log(green + "Plugin Enabled!");
+		log("Plugin Enabled!");
+		try
+		{
+		    Metrics metrics = new Metrics(this);
+		    metrics.start();
+		    log("Metrics Enabled!");
+		} 
+		catch (IOException e)
+		{
+		    log("Failed to start Metrics");
+		}
 	}
 	
 	public void onDisable() 
 	{
-		log(red + "Plugin Disabled!");
+		log("Plugin Disabled!");
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -62,7 +74,7 @@ public class Main extends JavaPlugin
 		player.updateInventory();
 	}
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) 
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
 	{
 		Player player = (Player) sender;
 		
@@ -76,78 +88,60 @@ public class Main extends JavaPlugin
 					{
 						player.sendMessage(notEnoughArgs);
 						player.sendMessage(usage + "/head <headname>");
-						return true;
 					}
 				
 					else if (args.length > 1)
 					{
 						player.sendMessage(tooManyArgs);
 						player.sendMessage(usage + "/head <headname>");
-						return true;
 					}
 				
 					else if (args.length == 1)
 					{
 						givePlayerSkull(player, args[0]);
 						player.sendMessage(correctPrefix + "Successfully spawned the head of " + reset + args[0]);
-						return true;
 					}
 				}
 				
 				else
 				{
 					player.sendMessage(noPermission);
-					return true;
 				}
 			}
 			
 			else
 			{
 				sender.sendMessage(playerOnly);
-				return true;
 			}
 		}
 		
 		else if (cmd.getName().equalsIgnoreCase("givehead")) 
 		{
-			if (sender instanceof Player) 
+			if (player.hasPermission("minehead.give"))
 			{
-				if (player.hasPermission("minehead.give"))
+				if (args.length < 2)
 				{
-					if (args.length < 2)
-					{
-						player.sendMessage(notEnoughArgs);
-						player.sendMessage(usage + "/givehead <headname> <playername>");
-						return true;
-					}
-				
-					else if (args.length > 2)
-					{
-						player.sendMessage(tooManyArgs);
-						player.sendMessage(usage + "/givehead <headname> <playername>");
-						return true;
-					}
-				
-					else if (args.length == 2)
-					{
-						Player skullReceiver = Bukkit.getServer().getPlayerExact(args[1]);
-						givePlayerSkull(skullReceiver, args[0]);
-						player.sendMessage(correctPrefix + "Successfully gived the head of " + reset + args[0] + green + " to " + reset + args[1]);
-						return true;
-					}
+					player.sendMessage(notEnoughArgs);
+					player.sendMessage(usage + "/givehead <headname> <playername>");
 				}
 				
-				else
+				else if (args.length > 2)
 				{
-					player.sendMessage(noPermission);
-					return true;
+					player.sendMessage(tooManyArgs);
+					player.sendMessage(usage + "/givehead <headname> <playername>");
+				}
+				
+				else if (args.length == 2)
+				{
+					Player skullReceiver = Bukkit.getServer().getPlayerExact(args[1]);
+					givePlayerSkull(skullReceiver, args[0]);
+					player.sendMessage(correctPrefix + "Successfully gived the head of " + reset + args[0] + green + " to " + reset + args[1]);
 				}
 			}
 			
 			else
 			{
-				sender.sendMessage(playerOnly);
-				return true;
+				sender.sendMessage(noPermission);
 			}
 		}
 		
@@ -163,28 +157,33 @@ public class Main extends JavaPlugin
 						sender.sendMessage(white + "Author: " + green + "MikuFR");
 						sender.sendMessage(green + "Use" + white + " /minehead reload " + green + "to reload the configuration");
 						sender.sendMessage(aqua + "***************");
-						return true;
 					}
 				
 					else if (args.length > 1)
 					{
 						player.sendMessage(tooManyArgs);
 						player.sendMessage(usage + "/minehead [reload]");
-						return true;
 					}
 				
 					else if (args.length == 1)
 					{
-						reloadConfig();
-						sender.sendMessage(correctPrefix + "Configuration reloaded!");
-						return true;
+						if (args[0] == "reload")
+						{
+							reloadConfig();
+							sender.sendMessage(correctPrefix + "Configuration reloaded!");
+						}
+						
+						else
+						{
+							player.sendMessage(unknownArgs);
+							player.sendMessage(usage + "/minehead [reload]");
+						}
 					}
 				}
 				
 				else
 				{
 					player.sendMessage(noPermission);
-					return true;
 				}
 		}
 		

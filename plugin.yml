@@ -1,6 +1,6 @@
 main: me.mikufr.minehead.Main
 name: MineHead
-version: 0.1
+version: 0.2
 author: MikuFR
 description: A cool plugin to spawn custom heads!
 website: http://dev.bukkit.org/bukkit-plugins/minehead/
